@@ -65,6 +65,20 @@ function readJson(request) {
 const server = http.createServer(async (request, response) => {
 	const requestUrl = new URL(request.url, 'http://localhost');
 
+	if (request.method === 'GET' && requestUrl.pathname === '/') {
+		sendJson(response, 200, {
+			service: 'inventory-service',
+			endpoints: [
+				'GET /health',
+				'GET /inventory',
+				'GET /inventory/:sku',
+				'POST /inventory/restock',
+				'POST /inventory/reserve',
+			],
+		});
+		return;
+	}
+
 	try {
 		if (request.method === 'GET' && requestUrl.pathname === '/health') {
 			sendJson(response, 200, { status: 'ok', brokerConnected: Boolean(brokerConnection) });
