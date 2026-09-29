@@ -43,7 +43,18 @@ function renderInventory() {
     const cell = document.createElement('td');
     cell.className = 'table-message';
     cell.colSpan = 3;
-    cell.textContent = state.query ? 'No matching SKUs.' : 'No stock recorded.';
+    if (state.query) {
+      cell.textContent = 'No matching SKUs.';
+    } else {
+      const message = document.createElement('p');
+      const action = document.createElement('button');
+      message.textContent = 'No stock recorded yet.';
+      action.className = 'empty-action';
+      action.type = 'button';
+      action.textContent = 'Add your first SKU';
+      action.addEventListener('click', () => elements.sku.focus());
+      cell.append(message, action);
+    }
     row.append(cell);
     elements.rows.append(row);
   } else {
@@ -54,7 +65,13 @@ function renderInventory() {
       const stateCell = document.createElement('td');
       const stockState = document.createElement('span');
 
-      skuCell.textContent = item.sku;
+      const skuButton = document.createElement('button');
+      skuButton.className = 'sku-choice';
+      skuButton.type = 'button';
+      skuButton.dataset.sku = item.sku;
+      skuButton.setAttribute('aria-label', `Use SKU ${item.sku}`);
+      skuButton.textContent = item.sku;
+      skuCell.append(skuButton);
       quantityCell.className = 'quantity-cell';
       quantityCell.textContent = Number(item.quantity).toLocaleString();
       stockState.className = `stock-state${item.quantity <= 5 ? ' is-low' : ''}`;
@@ -119,6 +136,18 @@ document.querySelectorAll('.segment').forEach((button) => {
 elements.search.addEventListener('input', () => {
   state.query = elements.search.value.trim();
   renderInventory();
+});
+
+elements.rows.addEventListener('click', (event) => {
+  const skuButton = event.target.closest('button[data-sku]');
+  if (!skuButton) {
+    return;
+  }
+
+  elements.sku.value = skuButton.dataset.sku;
+  elements.message.textContent = `SKU ${skuButton.dataset.sku} selected. Enter a quantity.`;
+  elements.message.className = 'form-message is-neutral';
+  elements.quantity.focus();
 });
 
 document.querySelector('#refresh-button').addEventListener('click', refreshInventory);

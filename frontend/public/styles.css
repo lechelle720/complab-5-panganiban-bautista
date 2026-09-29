@@ -313,6 +313,23 @@ td:first-child {
   font-variant-numeric: tabular-nums;
 }
 
+.sku-choice {
+  border: 0;
+  padding: 0;
+  color: var(--green-dark);
+  background: transparent;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+}
+
+.sku-choice:hover,
+.sku-choice:focus-visible {
+  text-decoration-color: currentColor;
+}
+
 .stock-state {
   display: inline-flex;
   align-items: center;
@@ -338,6 +355,21 @@ td:first-child {
   height: 118px;
   color: var(--muted);
   text-align: center;
+}
+
+.table-message p {
+  margin: 0 0 5px;
+}
+
+.empty-action {
+  border: 0;
+  padding: 0;
+  color: var(--green);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .table-footnote {
@@ -394,6 +426,12 @@ td:first-child {
   font-weight: 700;
 }
 
+.field-hint {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .field-label:not(:first-child) {
   margin-top: 15px;
 }
@@ -426,6 +464,10 @@ td:first-child {
 }
 
 .form-message.is-success {
+  color: var(--green-dark);
+}
+
+.form-message.is-neutral {
   color: var(--green-dark);
 }
 
