@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f1f4f1">
+    <title>Inventory | Shop Operations</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Shop Operations inventory home">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <span class="brand-copy">
+            <span class="brand-kicker">SHOP OPERATIONS</span>
+            <span class="brand-name">Inventory</span>
+          </span>
+        </a>
+        <div class="connection" id="connection-status" role="status" aria-live="polite">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connection-label">Connecting</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow">STOCK / CONTROL</p>
+            <h1 id="page-title">Inventory</h1>
+            <p class="page-subtitle">Current stock and item movements</p>
+          </div>
+          <button class="button button-secondary" id="refresh-button" type="button">
+            <span aria-hidden="true">&#8635;</span> Refresh
+          </button>
+        </section>
+
+        <section class="summary" aria-label="Inventory summary">
+          <div class="metric">
+            <span class="metric-label">Tracked SKUs</span>
+            <strong class="metric-value" id="sku-count">--</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Units on hand</span>
+            <strong class="metric-value" id="unit-count">--</strong>
+          </div>
+          <div class="metric metric-alert">
+            <span class="metric-label">Low stock</span>
+            <strong class="metric-value" id="low-count">--</strong>
+          </div>
+        </section>
+
+        <section class="workspace" aria-label="Inventory management">
+          <section class="stock-section" aria-labelledby="stock-heading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">CATALOG</p>
+                <h2 id="stock-heading">Stock levels</h2>
+              </div>
+              <label class="search-field">
+                <span class="visually-hidden">Filter by SKU</span>
+                <span class="search-icon" aria-hidden="true">&#9906;</span>
+                <input id="search-input" type="search" placeholder="Filter SKU" autocomplete="off">
+              </label>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Available</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-rows">
+                  <tr><td class="table-message" colspan="3">Loading stock...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-footnote" id="inventory-count">0 items</p>
+          </section>
+
+          <aside class="movement-panel" aria-labelledby="movement-heading">
+            <div class="panel-heading">
+              <p class="eyebrow">STOCK MOVEMENT</p>
+              <h2 id="movement-heading">Update stock</h2>
+            </div>
+
+            <div class="segmented" role="group" aria-label="Stock movement type">
+              <button class="segment is-selected" type="button" data-mode="restock" aria-pressed="true">Restock</button>
+              <button class="segment" type="button" data-mode="reserve" aria-pressed="false">Reserve</button>
+            </div>
+
+            <form id="stock-form">
+              <label class="field-label" for="sku-input">SKU</label>
+              <input id="sku-input" name="sku" type="text" placeholder="e.g. SKU-104" maxlength="100" required>
+
+              <label class="field-label" for="quantity-input">Quantity</label>
+              <input id="quantity-input" name="quantity" type="number" min="1" step="1" value="1" required>
+
+              <button class="button button-primary" id="submit-button" type="submit">Add stock</button>
+              <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+            </form>
+          </aside>
+        </section>
+      </main>
+      <footer class="footer"><span>SHOP OPERATIONS</span><span>INVENTORY SERVICE</span></footer>
+    </div>
+  </body>
+</html>

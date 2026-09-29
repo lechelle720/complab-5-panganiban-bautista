@@ -1,0 +1,81 @@
+networks:
+  shop-network:
+    driver: bridge
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - shop-network
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8081:8080"
+    environment:
+      - ORDER_SERVICE_URL=http://order-service:3000
+      - INVENTORY_SERVICE_URL=http://inventory-service:3001
+      - CORS_ORIGIN=http://localhost:3000
+    depends_on:
+      - order-service
+      - inventory-service
+    networks:
+      - shop-network
+  order-service:
+    build: ./order-services
+    container_name: order-service
+    environment:
+      - BROKER_URL=amqp://guest:guest@message-broker:5672
+    depends_on:
+      - message-broker
+    networks:
+      - shop-network
+  message-broker:
+    image: rabbitmq:3-management
+    container_name: message-broker
+    ports:
+      - "5672:5672"  
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - shop-network
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    environment:
+      - BROKER_URL=amqp://guest:guest@message-broker:5672
+    depends_on:
+      - message-broker
+    networks:
+      - shop-network
+  inventory-service:
+    build: ./inventory-sevices
+    container_name: inventory-service
+    ports:
+      - "3001:3001"
+    environment:
+      - BROKER_URL=amqp://guest:guest@message-broker:5672
+      - PORT=3001
+    depends_on:
+      - message-broker
+    networks:
+      - shop-network
+  notification-service:
+    build: ./notification-services
+    container_name: notification-service
+    environment:
+      - BROKER_URL=amqp://guest:guest@message-broker:5672
+    depends_on:
+      - message-broker
+    networks:
+      - shop-network
