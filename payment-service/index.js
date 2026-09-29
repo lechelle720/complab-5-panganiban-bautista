@@ -1,9 +1,9 @@
-const amqp = require('amqplib');
 const { createPaymentSuccess } = require('./payment');
 
 const brokerUrl = process.env.BROKER_URL || 'amqp://guest:guest@message-broker:5672';
 const exchange = 'shop.events';
-const queue = 'order.placed.queue';
+const orderQueue = 'order.placed.queue';
+const paymentQueue = 'payment.success.queue';
 const retryDelayMs = Number(process.env.BROKER_RETRY_DELAY_MS || 3000);
 let brokerConnection;
 let brokerChannel;
@@ -38,23 +38,44 @@ async function handleOrder(channel, message) {
   }
 }
 
+function handlePaymentSuccess(channel, message) {
+  try {
+    const payment = JSON.parse(message.content.toString());
+    if (payment.type !== 'payment.success' || typeof payment.orderId !== 'string') {
+      throw new Error('Expected a payment.success event with an orderId.');
+    }
+    console.log(`Acknowledged payment.success for order ${payment.orderId}.`);
+  } catch (error) {
+    console.error('Discarding invalid payment event:', error.message);
+  }
+  channel.ack(message);
+}
+
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 async function connectToBroker() {
+  const amqp = require('amqplib');
   while (!shuttingDown) {
     let connection;
     try {
       connection = await amqp.connect(brokerUrl);
       const channel = await connection.createConfirmChannel();
       await channel.assertExchange(exchange, 'topic', { durable: true });
-      await channel.assertQueue(queue, { durable: true });
-      await channel.bindQueue(queue, exchange, 'order.placed');
+      await channel.assertQueue(orderQueue, { durable: true });
+      await channel.bindQueue(orderQueue, exchange, 'order.placed');
+      await channel.assertQueue(paymentQueue, { durable: true });
+      await channel.bindQueue(paymentQueue, exchange, 'payment.success');
       await channel.prefetch(1);
-      await channel.consume(queue, (message) => {
+      await channel.consume(orderQueue, (message) => {
         if (message) {
           void handleOrder(channel, message);
+        }
+      });
+      await channel.consume(paymentQueue, (message) => {
+        if (message) {
+          handlePaymentSuccess(channel, message);
         }
       });
 
@@ -69,7 +90,7 @@ async function connectToBroker() {
           setTimeout(() => void connectToBroker(), retryDelayMs).unref();
         }
       });
-      console.log(`Consuming ${queue} and publishing payment.success events.`);
+      console.log(`Consuming ${orderQueue} and ${paymentQueue}; publishing payment.success events.`);
       return;
     } catch (error) {
       await connection?.close().catch(() => {});
@@ -96,4 +117,4 @@ if (require.main === module) {
   process.on('SIGTERM', shutdown);
 }
 
-module.exports = { handleOrder };
+module.exports = { handleOrder, handlePaymentSuccess };
