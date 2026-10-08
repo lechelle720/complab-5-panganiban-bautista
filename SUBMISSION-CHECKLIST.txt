@@ -1,0 +1,18 @@
+LAB WORKSHEET 5 SUBMISSION CHECKLIST
+
+[ ] Project folder: complab-5-panganiban
+[ ] docker-compose.yml
+[ ] frontend
+[ ] api-gateway
+[ ] order-service
+[ ] payment-service
+[ ] inventory-service
+[ ] notification-service
+[ ] RabbitMQ management console tested
+[ ] Frontend order tested
+[ ] order.placed binding checked
+[ ] payment.success binding checked
+[ ] Fault-tolerance test completed
+[ ] Screenshots captured
+[ ] Public GitHub repository created
+[ ] GitHub repository URL copied for submission
